@@ -4,7 +4,7 @@ const imagesList = [
     src: 'https://www.modi.ru/upload/product/b67/7h326lbewb0lkl1xaj8smruqhtv55zks.jpg',
   },
   {
-    id: 1,
+    id:1,
     src: 'https://www.modi.ru/upload/product/a0e/ikd6w9hzzp9r9jn9ygue5c8m1nn34spe.jpg',
   },
   {
