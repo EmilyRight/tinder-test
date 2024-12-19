@@ -51,9 +51,17 @@ export const ReactTinderCards = () => {
 
   const goBack = async () => {
     if (!canGoBack) return;
-    const newIndex = currentIndex + 1;
-    updateCurrentIndex(newIndex);
-    await childRefs[newIndex]?.current?.restoreCard();
+
+    for (let i = currentIndex + 1; i < imagesList.length; i++) {
+      // Проверяем, что ссылка существует
+      const cardRef = childRefs[i]?.current; // Безопасное обращение
+      if (cardRef && typeof cardRef.restoreCard === "function") {
+        updateCurrentIndex(i); // Обновляем текущий индекс
+        await cardRef.restoreCard(); // Ждем завершения
+      } else {
+        console.warn(`Card reference for index ${i} is invalid or null.`);
+      }
+    }
   };
 
   return (
@@ -84,7 +92,7 @@ export const ReactTinderCards = () => {
                 : `${styles.inactive} ${styles.btn}`
             }
             onClick={() => swipe("left")}>
-            Swipe left!
+            Не нравится
           </button>
           <button
             className={
@@ -93,7 +101,7 @@ export const ReactTinderCards = () => {
                 : `${styles.active} ${styles.btn}`
             }
             onClick={() => goBack()}>
-            Undo swipe!
+            Отмена
           </button>
           <button
             className={
@@ -102,7 +110,7 @@ export const ReactTinderCards = () => {
                 : `${styles.inactive} ${styles.btn}`
             }
             onClick={() => swipe("right")}>
-            Swipe right!
+            Нравится
           </button>
         </div>
       </div>
