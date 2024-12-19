@@ -1,0 +1,100 @@
+.section {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  justify-content: center;
+  align-items: center;
+}
+.cards-block {
+  position: relative;
+  width: 375px;
+  height: 375px;
+  margin-bottom: 40px;
+}
+
+.cardWrapper {
+  position: absolute;
+  box-shadow: 0 0 5px 2px rgba(179, 181, 179, 0.108);
+  width: 100%;
+  top: 0;
+  left: 0;
+  transition: 0.4s;
+}
+.cardWrapper > img {
+  max-width: 100%;
+}
+
+.cardWrapper.active {
+  top: 10px;
+  width: 100%;
+  left: 0;
+  transform-origin: center;
+  border: 1px solid red;
+}
+.cardWrapper:last-of-type.swipeToLeft {
+  animation: swipeToLeft 1s normal 0s 1 linear forwards;
+}
+
+.swipeToRight {
+  animation: swipeToRight 1s normal 0s 1 linear forwards;
+}
+
+.buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.btn {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+.btn.active {
+  background-color: #7c96755d;
+}
+
+.btn.inactive {
+  background-color: #1a1a1a30;
+}
+
+.left {
+}
+
+@media screen and (max-width: 1365px) {
+}
+
+@media screen and (max-width: 767px) {
+}
+
+@keyframes swipeToLeft {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: rotate(-26deg) translateX(-200%);
+  }
+}
+
+@keyframes swipeToRight {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: rotate(26deg) translateX(200%);
+  }
+}
