@@ -18,6 +18,8 @@
   position: relative;
   width: 90%;
   height: 90vw;
+  max-width: 375px;
+  max-height: 375px;
   margin-bottom: 40px;
   display: flex;
   align-items: center;

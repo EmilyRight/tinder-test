@@ -2,6 +2,7 @@ import React, { Dispatch, LegacyRef, SetStateAction } from "react";
 import styles from "./index.module.css";
 import TImage from "../../types/TImagesList";
 import { motion, useMotionValue, useTransform } from "motion/react";
+import useWindowSize from "../TinderCard/useWindowSize";
 
 type TCardProps = {
   id: number;
@@ -16,6 +17,7 @@ const Card = React.forwardRef(
     ref: LegacyRef<HTMLDivElement> | undefined
   ) => {
     const x = useMotionValue(0);
+    const { width} = useWindowSize();
     const rotateRaw = useTransform(x, [-150, 150], [-18, 18]);
     const opacity = useTransform(x, [-180, 0, 180], [0, 1, 0]);
     const isFront = id === cards[cards.length - 1].id;
@@ -25,6 +27,11 @@ const Card = React.forwardRef(
     });
 
     const handleDragEnd = () => {
+      if (width && width <= 767) {
+        if (Math.abs(x.get()) > 20) {
+          setCards((pv) => pv.filter((v) => v.id !== id));
+        }
+      }
       if (Math.abs(x.get()) > 100) {
         setCards((pv) => pv.filter((v) => v.id !== id));
       }
