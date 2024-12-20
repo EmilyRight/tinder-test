@@ -7,8 +7,10 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  justify-content: center;
   min-height: 100vh;
   gap: 50px;
+
 }
 
 .logo {
@@ -40,6 +42,8 @@
 }
 @media screen and (max-width: 767px) {
   #root {
+    width: 100%;
+    max-width: 100%;
     flex-direction: column;
     flex-wrap: wrap;
     gap: 50px;

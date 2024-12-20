@@ -13,11 +13,15 @@
   overflow: hidden;
   padding: 10px;
 }
+
 .cards-block {
   position: relative;
   width: 375px;
   height: 375px;
   margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cardWrapper {
@@ -30,6 +34,7 @@
 }
 .cardWrapper > img {
   max-width: 100%;
+  display: block;
 }
 
 .cardWrapper.active {

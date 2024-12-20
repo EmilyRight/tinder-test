@@ -1,12 +1,7 @@
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import React, { Dispatch, LegacyRef, SetStateAction } from "react";
 import styles from "./index.module.css";
 import TImage from "../../types/TImagesList";
-import {
-  motion,
-  useMotionValue,
-  useMotionValueEvent,
-  useTransform,
-} from "motion/react";
+import { motion, useMotionValue, useTransform } from "motion/react";
 
 type TCardProps = {
   id: number;
@@ -15,45 +10,49 @@ type TCardProps = {
   cards: TImage[];
 };
 
-function Card({ id, src, setCards, cards }: TCardProps) {
-  const imageRef = useRef<HTMLImageElement>(null);
+const Card = React.forwardRef(
+  (
+    { id, src, setCards, cards }: TCardProps,
+    ref: LegacyRef<HTMLDivElement> | undefined
+  ) => {
+    const x = useMotionValue(0);
+    const rotateRaw = useTransform(x, [-150, 150], [-18, 18]);
+    const opacity = useTransform(x, [-180, 0, 180], [0, 1, 0]);
+    const isFront = id === cards[cards.length - 1].id;
+    const rotate = useTransform(() => {
+      const offset = isFront ? 0 : id % 2 ? 6 : -6;
+      return `${rotateRaw.get() + offset}deg`;
+    });
 
-  const [, setActiveIndex] = useState<number>(cards.length - 1);
-  const x = useMotionValue(0);
-  useMotionValueEvent(x, "change", (latest) => console.log(latest));
-  const opacity = useTransform(x, [-150, 0, 150], [0, 1, 0]);
-  const rotate = useTransform(x, [-150, 150], [-10, 10]);
-  // const isFront = activeIndex === cards.length;
-  // const offset = isFront ? 0 : id % 2 ? 6 : -6;
+    const handleDragEnd = () => {
+      if (Math.abs(x.get()) > 100) {
+        setCards((pv) => pv.filter((v) => v.id !== id));
+      }
+    };
 
-  const handleAnimationEnd = () => {
-    const newCards = cards.slice(0, -1);
-    console.log(newCards, `handleAnimationEnd`);
-
-    setCards(newCards);
-    setActiveIndex((prev) => prev - 1);
-  };
-
-  return (
-    <motion.div
-      key={id}
-      className={`${styles.cardWrapper} ${
-        id === cards.length ? styles.active : ""
-      } `}
-      onAnimationEnd={handleAnimationEnd}
-      ref={id === cards.length ? imageRef : null}
-      draggable
-      drag='x'
-      style={{
-        backgroundImage: `url(${src})`,
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover",
-        x,
-        opacity,
-        rotate,
-      }}
-      dragConstraints={{ left: 0, right: 0 }}></motion.div>
-  );
-}
+    return (
+      <motion.div
+        key={id}
+        className={`${styles.cardWrapper} ${
+          id === cards.length ? styles.active : ""
+        } `}
+        onDragEnd={handleDragEnd}
+        draggable
+        drag='x'
+        style={{
+          backgroundImage: `url(${src})`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          x,
+          opacity,
+          rotate,
+          transition: "0.125s transform",
+        }}
+        ref={ref}
+        animate={{ scale: isFront ? 1 : 0.98 }}
+        dragConstraints={{ left: 0, right: 0 }}></motion.div>
+    );
+  }
+);
 
 export default Card;

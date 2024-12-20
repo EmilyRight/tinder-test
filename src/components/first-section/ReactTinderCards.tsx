@@ -66,6 +66,7 @@ export const ReactTinderCards = () => {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
+        <h2>Свайп мышью, тач-эвенты, кнопки (react-tinder-card)</h2>
         <div className={styles["cards-block"]}>
           <div>Карточки закончились</div>
           {imagesList.map(({ id, src }) => (

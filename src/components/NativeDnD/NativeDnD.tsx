@@ -35,7 +35,6 @@ export const NativeDnD = () => {
     setActiveIndex(imagesList.length - 1);
   };
 
-
   useEffect(() => {
     console.log("rerender");
   }, [cards]);
@@ -43,6 +42,7 @@ export const NativeDnD = () => {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
+        <h2>Только кнопки (css-анимации)</h2>
         <div className={styles["cards-block"]}>
           <div>Карточки закончились</div>
           {cards.map(({ id, src }) => (
