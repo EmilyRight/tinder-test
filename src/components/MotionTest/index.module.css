@@ -9,30 +9,50 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 35px;
   justify-content: center;
   align-items: center;
   overflow: hidden;
   width: 100%;
   max-width: 1440px;
+  padding: 20px;
 }
 .cards-block {
   position: relative;
   width: 375px;
-  height: 375px;
+  min-height: 375px;
+  height: auto;
   margin-bottom: 40px;
+  display: grid;
+  justify-content: center;
+}
+.stub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
 }
 
 .cardWrapper {
-  position: absolute;
-  box-shadow: 0 0 5px 2px rgba(179, 181, 179, 0.108);
-  width: 100%;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 0 5px 2px rgba(125, 126, 125, 0.108);
+  width: 375px;
+  min-height: 375px;
+  max-height: fit-content;
+  margin: 0 auto;
   top: 0;
   left: 0;
   transition: 0.4s;
+  grid-column: 1/1;
+  grid-row: 1/1;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
 }
 .cardWrapper > img {
-  max-width: 100%;
+  width: 100%;
+  display: block;
 }
 
 .cardWrapper.active {
@@ -40,7 +60,7 @@
   width: 100%;
   left: 0;
   transform-origin: center;
-  border: 1px solid red;
+  box-shadow: 0 0 5px 2px rgba(18, 235, 18, 0.108);
 }
 .cardWrapper:last-of-type.swipeToLeft {
   animation: swipeToLeft 1s normal 0s 1 linear forwards;
@@ -85,7 +105,7 @@
 
 @keyframes swipeToLeft {
   0% {
-    transform: translateX(-50%);
+    transform: none;
   }
 
   100% {
@@ -95,7 +115,7 @@
 
 @keyframes swipeToRight {
   0% {
-    transform: translateX(-50%);
+    transform: none;
   }
 
   100% {

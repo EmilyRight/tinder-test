@@ -1,12 +1,21 @@
 import styles from "./index.module.css";
 import imagesList from "../../constants/constants";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import {
 
-export const NativeDnD = () => {
+  useMotionValue,
+  useMotionValueEvent,
+
+} from "motion/react";
+import Card from "./Card";
+
+export const MotionTest = () => {
   const imageRef = useRef<HTMLImageElement>(null);
 
   const [cards, setCards] = useState(imagesList);
   const [activeIndex, setActiveIndex] = useState<number>(cards.length - 1);
+  const x = useMotionValue(0);
+  useMotionValueEvent(x, "change", (latest) => console.log(latest));
 
   const handleSwipeRight = () => {
     if (imageRef.current) {
@@ -22,46 +31,22 @@ export const NativeDnD = () => {
     }
   };
 
-  const handleAnimationEnd = () => {
-    const newCards = cards.slice(0, -1);
-    console.log(newCards, `handleAnimationEnd`);
-
-    setCards(newCards);
-    setActiveIndex((prev) => prev - 1);
-  };
-
   const handlecardsBack = () => {
     setCards(imagesList);
     setActiveIndex(imagesList.length - 1);
   };
 
-
-  useEffect(() => {
-    console.log("rerender");
-  }, [cards]);
+  // useEffect(() => {
+  //   console.log("rerender");
+  // }, [cards]);
 
   return (
     <section className={styles.section}>
       <div className={styles.container}>
         <div className={styles["cards-block"]}>
-          <div>Карточки закончились</div>
+          <div className={styles.stub}>Карточки закончились</div>
           {cards.map(({ id, src }) => (
-            <div
-              key={id}
-              className={`${styles.cardWrapper} ${
-                activeIndex >= 0 && id === activeIndex ? styles.active : ""
-              } `}
-              draggable={activeIndex >= 0 && id === activeIndex ? true : false}
-              onAnimationEnd={handleAnimationEnd}
-              ref={activeIndex >= 0 && id === activeIndex ? imageRef : null}>
-              <img
-                key={id}
-                src={src}
-                alt=''
-                id={`${id}`}
-                className={styles.card}
-              />
-            </div>
+            <Card id={id} src={src} setCards={setCards} cards={cards} />
           ))}
         </div>
         <div className={styles.buttons}>

@@ -2,7 +2,7 @@ import styles from "./index.module.css";
 import imagesList from "../../constants/constants";
 import React from "react";
 import { useMemo, useRef, useState } from "react";
-import TinderCard from "react-tinder-card";
+import TinderCard from "../TinderCard";
 
 type TDirection = "left" | "right" | "up" | "down";
 type ChildRefType = {
@@ -79,7 +79,7 @@ export const ReactTinderCards = () => {
               key={id}
               onSwipe={(dir: TDirection) => swiped(dir, id)}
               onCardLeftScreen={() => outOfFrame(id)}>
-              <img src={src} alt='' id={`${id}`} />
+              <img src={src} alt='' id={`${id}`} draggable={false} />
             </TinderCard>
           ))}
         </div>
