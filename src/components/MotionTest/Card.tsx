@@ -28,7 +28,7 @@ const Card = React.forwardRef(
 
     const handleDragEnd = () => {
       if (width && width <= 767) {
-        if (Math.abs(x.get()) > width / 4) {
+        if (Math.abs(x.get()) > 50) {
           setCards((pv) => pv.filter((v) => v.id !== id));
         }
       }
