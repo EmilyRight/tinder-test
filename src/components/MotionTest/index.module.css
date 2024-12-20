@@ -3,7 +3,6 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  padding: 10px;
 }
 
 .container {
@@ -12,15 +11,15 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  width: 100%;
   max-width: 1440px;
   padding: 20px;
+  width: 100%;
 }
+
 .cards-block {
   position: relative;
-  width: 375px;
-  min-height: 375px;
-  height: auto;
+  width: 320px;
+  height: 320px;
   margin-bottom: 40px;
   display: grid;
   justify-content: center;
@@ -37,9 +36,8 @@
   position: relative;
   z-index: 10;
   box-shadow: 0 0 5px 2px rgba(125, 126, 125, 0.108);
-  width: 375px;
-  min-height: 375px;
-  max-height: fit-content;
+  width: 320px;
+  height: 320px;
   margin: 0 auto;
   top: 0;
   left: 0;

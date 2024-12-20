@@ -2,6 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  max-width: 100%;
 }
 
 .container {
@@ -11,12 +12,12 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  padding: 20px;
+  max-width: 100%;
 }
 .cards-block {
   position: relative;
-  width: 375px;
-  height: 375px;
+  width: 90%;
+  height: 90vw;
   margin-bottom: 40px;
   display: flex;
   align-items: center;
