@@ -17,7 +17,7 @@ const Card = React.forwardRef(
     ref: LegacyRef<HTMLDivElement> | undefined
   ) => {
     const x = useMotionValue(0);
-    const { width} = useWindowSize();
+    const { width } = useWindowSize();
     const rotateRaw = useTransform(x, [-150, 150], [-18, 18]);
     const opacity = useTransform(x, [-180, 0, 180], [0, 1, 0]);
     const isFront = id === cards[cards.length - 1].id;
@@ -28,7 +28,7 @@ const Card = React.forwardRef(
 
     const handleDragEnd = () => {
       if (width && width <= 767) {
-        if (Math.abs(x.get()) > 20) {
+        if (Math.abs(x.get()) > width / 4) {
           setCards((pv) => pv.filter((v) => v.id !== id));
         }
       }
