@@ -106,7 +106,7 @@ export const NativeDnD = () => {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        <h2>Только кнопки (css-анимации)</h2>
+        <h2>Mouse events, css-animations</h2>
         <div className={styles["cards-block"]}>
           <div className={styles.stub}>Карточки закончились</div>
           {cards.map(({ id, src }) => (
