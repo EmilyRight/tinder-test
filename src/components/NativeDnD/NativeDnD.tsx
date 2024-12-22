@@ -55,14 +55,17 @@ export const NativeDnD = () => {
       }
       const deltaX = clientX - dragStartCoords.x;
       const deltaY = clientY - dragStartCoords.y;
-      target.style.left = `${deltaX}px`;
-      target.style.top = `${10 + deltaY}px`;
-      setDragDelta({ x: deltaX, y: deltaY });
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        target.style.left = `${deltaX}px`;
+        target.style.top = `${10 + deltaY}px`;
+        setDragDelta({ x: deltaX, y: deltaY });
+      }
     }
   };
 
   const handleDragEnd = () => {
     setIsDragging(false);
+
     if (dragDelta.x > 100) {
       handleSwipeRight();
     } else if (dragDelta.x < -100) {
