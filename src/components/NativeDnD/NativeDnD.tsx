@@ -11,7 +11,23 @@ export const NativeDnD = () => {
   const [dragStartCoords, setDragStartCoords] = useState({ x: 0, y: 0 });
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+  // const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+  //   const { target } = e;
+  //   if (
+  //     target &&
+  //     target instanceof HTMLDivElement &&
+  //     imageRef.current === target
+  //   ) {
+  //     setIsDragging(true);
+  //     setDragStartCoords({ x: e.clientX, y: e.clientY });
+  //     e.dataTransfer?.setDragImage(new Image(), 0, 0);
+  //     return false;
+  //   }
+  // };
+
+  const handleDragStart = (
+    e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>
+  ) => {
     const { target } = e;
     if (
       target &&
@@ -19,29 +35,61 @@ export const NativeDnD = () => {
       imageRef.current === target
     ) {
       setIsDragging(true);
-      setDragStartCoords({ x: e.clientX, y: e.clientY });
-      e.dataTransfer?.setDragImage(new Image(), 0, 0);
-      return false;
+      if ("touches" in e) {
+        setDragStartCoords({
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        });
+      } else {
+        setDragStartCoords({ x: e.clientX, y: e.clientY });
+      }
     }
   };
 
-  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+  // const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+  //   const { target } = e;
+  //   if (
+  //     target &&
+  //     target instanceof HTMLDivElement &&
+  //     imageRef.current === target
+  //   ) {
+  //     if (isDragging) {
+  //       const deltaX = e.clientX - dragStartCoords.x;
+  //       const deltaY = e.clientY - dragStartCoords.y;
+
+  //       target.style.left = `${deltaX}px`;
+  //       target.style.top = `${10 + deltaY}px`;
+  //       setDragDelta({ x: deltaX, y: deltaY });
+  //     }
+  //   }
+  // };
+  const handleDrag = (
+    e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>
+  ) => {
     const { target } = e;
+    if (!isDragging || !target) return;
     if (
       target &&
       target instanceof HTMLDivElement &&
       imageRef.current === target
     ) {
-      if (isDragging) {
-        const deltaX = e.clientX - dragStartCoords.x;
-        const deltaY = e.clientY - dragStartCoords.y;
-
-        target.style.left = `${deltaX}px`;
-        target.style.top = `${10 + deltaY}px`;
-        setDragDelta({ x: deltaX, y: deltaY });
+      let clientX = 0,
+        clientY = 0;
+      if ("touches" in e) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
       }
+      const deltaX = clientX - dragStartCoords.x;
+      const deltaY = clientY - dragStartCoords.y;
+      target.style.left = `${deltaX}px`;
+      target.style.top = `${10 + deltaY}px`;
+      setDragDelta({ x: deltaX, y: deltaY });
     }
   };
+
   const handleDragEnd = () => {
     setIsDragging(false);
     if (dragDelta.x > 100) {
@@ -92,7 +140,6 @@ export const NativeDnD = () => {
               className={`${styles.cardWrapper} ${
                 activeIndex >= 0 && id === activeIndex ? styles.active : ""
               } `}
-              draggable={activeIndex >= 0 && id === activeIndex ? true : false}
               onAnimationEnd={handleAnimationEnd}
               ref={activeIndex >= 0 && id === activeIndex ? imageRef : null}
               style={{
@@ -106,9 +153,13 @@ export const NativeDnD = () => {
                   activeIndex >= 0 && id === activeIndex ? dragDelta.x : 0
                 }px`,
               }}
-              onDragStart={handleDragStart}
-              onDrag={handleDrag}
-              onDragEnd={handleDragEnd}></div>
+              onMouseDown={handleDragStart}
+              onMouseMove={isDragging ? handleDrag : undefined}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
+              onTouchStart={handleDragStart}
+              onTouchMove={isDragging ? handleDrag : undefined}
+              onTouchEnd={handleDragEnd}></div>
           ))}
         </div>
         <div className={styles.buttons}>
