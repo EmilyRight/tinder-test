@@ -2,52 +2,69 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 100%;
+  width: 100%;
 }
 
 .container {
   display: flex;
   flex-direction: column;
-  gap: 35px;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  max-width: 100%;
+  max-width: 1440px;
+  padding: 20px;
+  width: 100%;
 }
+
 .cards-block {
   position: relative;
-  width: 90%;
-  height: 90vw;
-  max-width: 375px;
-  max-height: 375px;
+  width: 320px;
+  height: 320px;
   margin-bottom: 40px;
-  display: flex;
-  align-items: center;
+  display: grid;
   justify-content: center;
+  align-items: center;
+}
+.stub {
+  grid-column: 1/1;
+  grid-row: 1/1;
+  width: 100%;
 }
 
 .cardWrapper {
-  position: absolute;
-  box-shadow: 0 0 5px 2px rgba(179, 181, 179, 0.108);
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 0 5px 2px rgba(125, 126, 125, 0.108);
+  width: 320px;
+  height: 320px;
+  margin: 0 auto;
   top: 0;
+  left: 0;
   transition: 0.4s;
+  grid-column: 1/1;
+  grid-row: 1/1;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
 }
 .cardWrapper > img {
-  max-width: 100%;
+  width: 100%;
   display: block;
 }
 
 .cardWrapper.active {
   top: 10px;
-  width: 100%;
   left: 0;
   transform-origin: center;
-  box-shadow: 0 0 5px 2px rgba(121, 123, 121, 0.377);
+  box-shadow: 0 0 5px 2px rgba(18, 235, 18, 0.108);
 }
-.cardWrapper.swipeToLeft {
+.cardWrapper:last-of-type.swipeToLeft {
   animation: swipeToLeft 1s normal 0s 1 linear forwards;
 }
-
+.cardWrapper.hide {
+  transition: 0.01s;
+  transform: translateX(-9999px);
+}
 .swipeToRight {
   animation: swipeToRight 1s normal 0s 1 linear forwards;
 }

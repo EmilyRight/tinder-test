@@ -1,5 +1,5 @@
 import "./App.css";
-import { ReactTinderCards } from "./components/first-section/ReactTinderCards";
+import { ReactTinderCards } from "./components/ReactTinderCards/ReactTinderCards";
 import { MotionTest } from "./components/MotionTest/MotionTest";
 import { NativeDnD } from "./components/NativeDnD/NativeDnD";
 

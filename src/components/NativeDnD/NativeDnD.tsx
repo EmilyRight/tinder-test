@@ -3,10 +3,55 @@ import imagesList from "../../constants/constants";
 import { useEffect, useRef, useState } from "react";
 
 export const NativeDnD = () => {
-  const imageRef = useRef<HTMLImageElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
 
   const [cards, setCards] = useState(imagesList);
   const [activeIndex, setActiveIndex] = useState<number>(cards.length - 1);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartCoords, setDragStartCoords] = useState({ x: 0, y: 0 });
+  const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    const { target } = e;
+    if (
+      target &&
+      target instanceof HTMLDivElement &&
+      imageRef.current === target
+    ) {
+      setIsDragging(true);
+      setDragStartCoords({ x: e.clientX, y: e.clientY });
+      e.dataTransfer?.setDragImage(new Image(), 0, 0);
+      return false;
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    const { target } = e;
+    if (
+      target &&
+      target instanceof HTMLDivElement &&
+      imageRef.current === target
+    ) {
+      if (isDragging) {
+        const deltaX = e.clientX - dragStartCoords.x;
+        const deltaY = e.clientY - dragStartCoords.y;
+
+        target.style.left = `${deltaX}px`;
+        target.style.top = `${10 + deltaY}px`;
+        setDragDelta({ x: deltaX, y: deltaY });
+      }
+    }
+  };
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    if (dragDelta.x > 100) {
+      handleSwipeRight();
+    } else if (dragDelta.x < -100) {
+      handleSwipeLeft();
+    }
+    setDragStartCoords({ x: 0, y: 0 });
+    setDragDelta({ x: 0, y: 0 });
+  };
 
   const handleSwipeRight = () => {
     if (imageRef.current) {
@@ -24,8 +69,6 @@ export const NativeDnD = () => {
 
   const handleAnimationEnd = () => {
     const newCards = cards.slice(0, -1);
-    console.log(newCards, `handleAnimationEnd`);
-
     setCards(newCards);
     setActiveIndex((prev) => prev - 1);
   };
@@ -35,16 +78,14 @@ export const NativeDnD = () => {
     setActiveIndex(imagesList.length - 1);
   };
 
-  useEffect(() => {
-    console.log("rerender");
-  }, [cards]);
+  useEffect(() => {}, [cards]);
 
   return (
     <section className={styles.section}>
       <div className={styles.container}>
         <h2>Только кнопки (css-анимации)</h2>
         <div className={styles["cards-block"]}>
-          <div>Карточки закончились</div>
+          <div className={styles.stub}>Карточки закончились</div>
           {cards.map(({ id, src }) => (
             <div
               key={id}
@@ -53,15 +94,21 @@ export const NativeDnD = () => {
               } `}
               draggable={activeIndex >= 0 && id === activeIndex ? true : false}
               onAnimationEnd={handleAnimationEnd}
-              ref={activeIndex >= 0 && id === activeIndex ? imageRef : null}>
-              <img
-                key={id}
-                src={src}
-                alt=''
-                id={`${id}`}
-                className={styles.card}
-              />
-            </div>
+              ref={activeIndex >= 0 && id === activeIndex ? imageRef : null}
+              style={{
+                backgroundImage: `url(${src})`,
+                backgroundRepeat: "no-repeat",
+                backgroundSize: "cover",
+                top: `${
+                  activeIndex >= 0 && id === activeIndex ? dragDelta.y + 10 : 0
+                }px`,
+                left: `${
+                  activeIndex >= 0 && id === activeIndex ? dragDelta.x : 0
+                }px`,
+              }}
+              onDragStart={handleDragStart}
+              onDrag={handleDrag}
+              onDragEnd={handleDragEnd}></div>
           ))}
         </div>
         <div className={styles.buttons}>
