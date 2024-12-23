@@ -2,54 +2,82 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 100%;
+  width: 100%;
 }
 
 .container {
   display: flex;
   flex-direction: column;
-  gap: 35px;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  padding: 10px;
-  max-width: 100%;
+  max-width: 1440px;
+  padding: 20px;
+  width: 100%;
 }
 
 .cards-block {
   position: relative;
-  width: 90%;
-  height: 90vw;
-  max-width: 375px;
-  max-height: 375px;
+  width: 320px;
+  height: 320px;
   margin-bottom: 40px;
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
   justify-content: center;
+  align-items: flex-start;
+}
+.stub {
+  grid-column: 1/1;
+  grid-row: 1/1;
+  width: 100%;
 }
 
 .cardWrapper {
-  position: absolute;
-  box-shadow: 0 0 5px 2px rgba(179, 181, 179, 0.108);
-  width: 100%;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 0 5px 2px rgba(125, 126, 125, 0.108);
+  width: 320px;
+  height: 320px;
+  margin: 0 auto;
   top: 0;
   left: 0;
   transition: 0.4s;
+  grid-column: 1/1;
+  grid-row: 1/1;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .cardWrapper > img {
   max-width: 100%;
   display: block;
 }
 
+.cardWrapper:not(.active) {
+  width: calc(320px * 0.9);
+  height: calc(320px * 0.9);
+}
+
 .cardWrapper.active {
   top: 10px;
-  width: 100%;
   left: 0;
+  width: 320px;
   transform-origin: center;
-  border: 1px solid red;
+  box-shadow: 0 0 5px 2px rgba(68, 69, 68, 0.222);
 }
+
 .cardWrapper:last-of-type.swipeToLeft {
   animation: swipeToLeft 1s normal 0s 1 linear forwards;
+}
+
+.cardWrapper.hide {
+  transition: 0.01s;
+  transform: translateX(-9999px);
 }
 
 .swipeToRight {
@@ -73,7 +101,7 @@
 }
 
 .btn.active {
-  background-color: #7c96755d;
+  background-color: #fac20b;
 }
 
 .btn.inactive {
@@ -87,12 +115,11 @@
 }
 
 @media screen and (max-width: 767px) {
-
 }
 
 @keyframes swipeToLeft {
   0% {
-    transform: translateX(-50%);
+    transform: none;
   }
 
   100% {
@@ -102,7 +129,7 @@
 
 @keyframes swipeToRight {
   0% {
-    transform: translateX(-50%);
+    transform: none;
   }
 
   100% {

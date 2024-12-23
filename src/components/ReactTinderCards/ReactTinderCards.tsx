@@ -68,18 +68,21 @@ export const ReactTinderCards = () => {
       <div className={styles.container}>
         <h2>Свайп мышью, тач-эвенты, кнопки (react-tinder-card)</h2>
         <div className={styles["cards-block"]}>
-          <div>Карточки закончились</div>
+          <div className={styles.cardWrapper}>Карточки закончились</div>
           {imagesList.map(({ id, src }) => (
             <TinderCard
               ref={childRefs[id]}
               flickOnSwipe={true}
-              className={styles.cardWrapper}
+              className={`${styles.cardWrapper} ${
+                currentIndex === id ? styles.active : ""
+              }`}
               preventSwipe={["up", "down"]}
               swipeThreshold={100}
               swipeRequirementType={"position"}
               key={id}
               onSwipe={(dir: TDirection) => swiped(dir, id)}
-              onCardLeftScreen={() => outOfFrame(id)}>
+              onCardLeftScreen={() => outOfFrame(id)}
+              style={{ transform: `rotate(15deg)` }}>
               <img src={src} alt='' id={`${id}`} draggable={false} />
             </TinderCard>
           ))}

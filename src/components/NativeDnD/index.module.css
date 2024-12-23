@@ -25,7 +25,7 @@
   grid-template-columns: auto;
   grid-template-rows: auto;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }
 .stub {
   grid-column: 1/1;
@@ -55,12 +55,13 @@
   width: calc(320px * 0.9);
   height: calc(320px * 0.9);
 }
+
 .cardWrapper.active {
   top: 10px;
   left: 0;
   width: 320px;
   transform-origin: center;
-  box-shadow: 0 0 5px 2px rgba(18, 235, 18, 0.108);
+  box-shadow: 0 0 5px 2px rgba(68, 69, 68, 0.222);
 }
 
 .cardWrapper:last-of-type.swipeToLeft {

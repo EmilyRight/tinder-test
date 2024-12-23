@@ -66,9 +66,9 @@ export const NativeDnD = () => {
   const handleDragEnd = () => {
     setIsDragging(false);
 
-    if (dragDelta.x > 100) {
+    if (dragDelta.x > 50) {
       handleSwipeRight();
-    } else if (dragDelta.x < -100) {
+    } else if (dragDelta.x < -50) {
       handleSwipeLeft();
     }
     setDragStartCoords({ x: 0, y: 0 });

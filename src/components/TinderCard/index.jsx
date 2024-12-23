@@ -84,7 +84,7 @@ const AnimatedDiv = animated.div
 const TinderCard = React.forwardRef(
   (
     { flickOnSwipe = true, children, onSwipe, onCardLeftScreen, className, preventSwipe = [], swipeRequirementType = 'velocity', swipeThreshold = settings.swipeThreshold, onSwipeRequirementFulfilled, onSwipeRequirementUnfulfilled },
-    ref
+    ref,
   ) => {
     const { width, height } = useWindowSize()
     const [{ xyrot }, setSpringTarget] = useSpring(() => ({

@@ -22,13 +22,14 @@
   height: 320px;
   margin-bottom: 40px;
   display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto;
   justify-content: center;
+  align-items: flex-start;
 }
 .stub {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  grid-column: 1/1;
+  grid-row: 1/1;
   width: 100%;
 }
 
@@ -47,21 +48,29 @@
   background-color: #fff;
   border-radius: 12px;
   overflow: hidden;
+  cursor: grab;
 }
-.cardWrapper > img {
-  width: 100%;
-  display: block;
+
+.cardWrapper:not(.active) {
+  width: calc(320px * 0.9);
+  height: calc(320px * 0.9);
 }
 
 .cardWrapper.active {
   top: 10px;
-  width: 100%;
   left: 0;
+  width: 320px;
   transform-origin: center;
   box-shadow: 0 0 5px 2px rgba(18, 235, 18, 0.108);
 }
+
 .cardWrapper:last-of-type.swipeToLeft {
   animation: swipeToLeft 1s normal 0s 1 linear forwards;
+}
+
+.cardWrapper.hide {
+  transition: 0.01s;
+  transform: translateX(-9999px);
 }
 
 .swipeToRight {
@@ -85,7 +94,7 @@
 }
 
 .btn.active {
-  background-color: #7c96755d;
+  background-color: #fac20b;
 }
 
 .btn.inactive {
