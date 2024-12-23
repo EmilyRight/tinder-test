@@ -16,11 +16,11 @@ const physics = {
   },
   animateOut: {
     friction: 20,
-    tension: 150
+    tension: 200
   },
   animateBack: {
-    friction: 20,
-    tension: 150
+    friction: 50,
+    tension: 250
   }
 }
 
@@ -57,7 +57,7 @@ const animateOut = async (gesture, setSpringTarget, windowHeight, windowWidth) =
 const animateBack = (setSpringTarget) => {
   // translate back to the initial position
   return new Promise((resolve) => {
-    setSpringTarget.start({ xyrot: [0, 0, 0], config: physics.animateBack, onRest: resolve })
+    setSpringTarget.start({ xyrot: [0, 0, 0],  onRest: resolve })
   })
 }
 
@@ -89,7 +89,6 @@ const TinderCard = React.forwardRef(
     const { width, height } = useWindowSize()
     const [{ xyrot }, setSpringTarget] = useSpring(() => ({
       xyrot: [0, 0, 0],
-      config: physics.touchResponsive
     }))
 
     settings.swipeThreshold = swipeThreshold
@@ -213,7 +212,7 @@ const TinderCard = React.forwardRef(
         let rot = gestureState.vx * 15 // Magic number 15 looks about right
         if (isNaN(rot)) rot = 0
         rot = Math.max(Math.min(rot, settings.maxTilt), -settings.maxTilt)
-        setSpringTarget.start({ xyrot: [gestureState.dx, gestureState.dy, rot], config: physics.touchResponsive })
+        setSpringTarget.start({ xyrot: [gestureState.dx, gestureState.dy, rot] })
       }
 
       const onMouseMove = (ev) => {

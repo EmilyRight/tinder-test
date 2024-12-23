@@ -52,11 +52,10 @@ export const ReactTinderCards = () => {
     if (!canGoBack) return;
 
     for (let i = currentIndex + 1; i < imagesList.length; i++) {
-      // Проверяем, что ссылка существует
-      const cardRef = childRefs[i]?.current; // Безопасное обращение
+      const cardRef = childRefs[i]?.current;
       if (cardRef && typeof cardRef.restoreCard === "function") {
-        updateCurrentIndex(i); // Обновляем текущий индекс
-        await cardRef.restoreCard(); // Ждем завершения
+        updateCurrentIndex(i);
+        await cardRef.restoreCard();
       } else {
         console.warn(`Card reference for index ${i} is invalid or null.`);
       }
