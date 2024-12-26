@@ -11,16 +11,16 @@ const settings = {
 // physical properties of the spring
 const physics = {
   touchResponsive: {
-    friction: 20,
-    tension: 150
+    friction: 50,
+    tension: 200,
   },
   animateOut: {
-    friction: 20,
-    tension: 200
+    friction: 50,
+    tension: 200,
   },
   animateBack: {
     friction: 50,
-    tension: 250
+    tension: 200,
   }
 }
 
@@ -43,7 +43,7 @@ const animateOut = async (gesture, setSpringTarget, windowHeight, windowWidth) =
 
   setSpringTarget.start({
     xyrot: [finalX, finalY, finalRotation],
-    config: { duration: 500 } //длительность анимации в мс
+    config: { duration: 500} //длительность анимации в мс
   })
 
   // for now animate back
@@ -89,6 +89,7 @@ const TinderCard = React.forwardRef(
     const { width, height } = useWindowSize()
     const [{ xyrot }, setSpringTarget] = useSpring(() => ({
       xyrot: [0, 0, 0],
+      config: physics.touchResponsive
     }))
 
     settings.swipeThreshold = swipeThreshold
@@ -103,12 +104,13 @@ const TinderCard = React.forwardRef(
         } else if (dir === 'left') {
           await animateOut({ x: -power, y: disturbance }, setSpringTarget, width, height)
         } else if (dir === 'up') {
-          await animateOut({ x: disturbance, y: -power }, setSpringTarget, width, height)
+          return
         } else if (dir === 'down') {
-          await animateOut({ x: disturbance, y: power }, setSpringTarget, width, height)
+          return
         }
         if (onCardLeftScreen) onCardLeftScreen(dir)
       },
+
       async restoreCard () {
         await animateBack(setSpringTarget)
       }
@@ -156,12 +158,15 @@ const TinderCard = React.forwardRef(
         dx = 0
         dy = 0
       }
+      const timeDelta = Date.now() - lastPosition.timeStamp;
 
-      const vx = -(dx - lastPosition.dx) / (lastPosition.timeStamp - Date.now())
-      const vy = -(dy - lastPosition.dy) / (lastPosition.timeStamp - Date.now())
+    if (timeDelta > 0) { 
+     const vx = (dx - lastPosition.dx) / timeDelta;
+     const vy = (dy - lastPosition.dy) / timeDelta;
+     const gestureState = { dx, dy, vx, vy, timeStamp: Date.now() }
+     return gestureState
+   }
 
-      const gestureState = { dx, dy, vx, vy, timeStamp: Date.now() }
-      return gestureState
     }
 
     React.useLayoutEffect(() => {
@@ -212,7 +217,7 @@ const TinderCard = React.forwardRef(
         let rot = gestureState.vx * 15 // Magic number 15 looks about right
         if (isNaN(rot)) rot = 0
         rot = Math.max(Math.min(rot, settings.maxTilt), -settings.maxTilt)
-        setSpringTarget.start({ xyrot: [gestureState.dx, gestureState.dy, rot] })
+        setSpringTarget.start({ xyrot: [gestureState.dx, gestureState.dy, rot], config: physics.touchResponsive })
       }
 
       const onMouseMove = (ev) => {

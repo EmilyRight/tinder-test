@@ -81,7 +81,10 @@ export const ReactTinderCards = () => {
               key={id}
               onSwipe={(dir: TDirection) => swiped(dir, id)}
               onCardLeftScreen={() => outOfFrame(id)}
-              style={{ transform: `rotate(15deg)` }}>
+              style={{
+                transform: `rotate(15deg)`,
+                transition: "transform 0.3s ease",
+              }}>
               <img src={src} alt='' id={`${id}`} draggable={false} />
             </TinderCard>
           ))}

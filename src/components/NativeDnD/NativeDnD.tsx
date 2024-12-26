@@ -1,17 +1,22 @@
 import styles from "./index.module.css";
 import imagesList from "../../constants/constants";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export const NativeDnD = () => {
-  const imageRef = useRef<HTMLDivElement>(null);
-
+  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [cards, setCards] = useState(imagesList);
   const [activeIndex, setActiveIndex] = useState<number>(cards.length - 1);
   const [isDragging, setIsDragging] = useState(false);
   const [isMovingLeft, setIsMovingLeft] = useState(false);
   const [isMovingRight, setIsMovingRight] = useState(false);
-  const [dragStartCoords, setDragStartCoords] = useState({ x: 0, y: 0 });
-  const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
+  const dragStartCoordsRef = useRef({ x: 0, y: 0 });
+  const dragDeltaRef = useRef({ x: 0, y: 0 });
+  const [rotationAngle, setRotationAngle] = useState(0);
+  const rafId = useRef(0); // для хранения идентификатора requestAnimationFrame
+
+  const preventScroll = (e: TouchEvent | MouseEvent) => {
+    e.preventDefault(); // Блокируем скроллинг страницы
+  };
 
   const handleDragStart = (
     e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>
@@ -20,18 +25,28 @@ export const NativeDnD = () => {
     if (
       target &&
       target instanceof HTMLDivElement &&
-      imageRef.current === target
+      imageRefs.current[activeIndex] === target
     ) {
       setIsDragging(true);
       if ("touches" in e) {
-        setDragStartCoords({
+        dragStartCoordsRef.current = {
           x: e.touches[0].clientX,
           y: e.touches[0].clientY,
-        });
+        };
       } else {
-        setDragStartCoords({ x: e.clientX, y: e.clientY });
+        dragStartCoordsRef.current = { x: e.clientX, y: e.clientY };
+        console.log("handleDragStart drag", dragStartCoordsRef.current);
       }
     }
+  };
+
+  const getClientCoords = (
+    e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>
+  ) => {
+    if ("touches" in e) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    return { x: e.clientX, y: e.clientY };
   };
 
   const handleDrag = (
@@ -42,51 +57,70 @@ export const NativeDnD = () => {
     if (
       target &&
       target instanceof HTMLDivElement &&
-      imageRef.current === target
+      imageRefs.current[activeIndex] === target
     ) {
-      let clientX = 0,
-        clientY = 0;
-      if ("touches" in e) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-      }
-      const deltaX = clientX - dragStartCoords.x;
-      const deltaY = clientY - dragStartCoords.y;
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        target.style.left = `${deltaX}px`;
-        target.style.top = `${10 + deltaY}px`;
-        setDragDelta({ x: deltaX, y: deltaY });
-      }
+      window.addEventListener("touchmove", preventScroll, { passive: false });
+      window.addEventListener("mousemove", preventScroll, { passive: false });
+      const { x } = getClientCoords(e);
+      const deltaX = x - dragStartCoordsRef.current.x;
+      const deltaY = 0;
+
+      dragDeltaRef.current = { x: deltaX, y: deltaY };
+    }
+
+    if (!rafId.current) {
+      rafId.current = requestAnimationFrame(updateRotation);
+    }
+  };
+
+  const updateRotation = () => {
+    if (isDragging) {
+      const { x } = dragDeltaRef.current;
+      const newRotationAngle = Math.max(-15, Math.min(15, x / 20));
+      setRotationAngle(newRotationAngle);
+      rafId.current = requestAnimationFrame(updateRotation);
+    } else {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = 0;
     }
   };
 
   const handleDragEnd = () => {
-    setIsDragging(false);
+    if (isDragging && imageRefs.current[activeIndex]) {
+      setIsDragging(false);
+      const deltaX = dragDeltaRef.current.x;
+      const deltaY = dragDeltaRef.current.y;
 
-    if (dragDelta.x > 50) {
-      handleSwipeRight();
-    } else if (dragDelta.x < -50) {
-      handleSwipeLeft();
+      if (Math.abs(deltaX) > 150 || Math.abs(deltaY) > 150) {
+        const targetX = deltaX > 0 ? "200%" : "-200%";
+        const targetY = deltaY > 0 ? "200%" : "-200%";
+
+        // Применяем трансформацию
+        imageRefs.current[activeIndex].style.setProperty(
+          "transform",
+          `translate(${targetX}, ${targetY}) rotate(${rotationAngle})`
+        );
+        handleAnimationEnd();
+      }
     }
-    setDragStartCoords({ x: 0, y: 0 });
-    setDragDelta({ x: 0, y: 0 });
+
+    dragDeltaRef.current = { x: 0, y: 0 };
+    dragStartCoordsRef.current = { x: 0, y: 0 };
+    setRotationAngle(0);
   };
 
   const handleSwipeRight = () => {
-    if (imageRef.current) {
-      imageRef.current.classList.add(`${styles.swipeToRight}`);
-      imageRef.current.classList.add(`${styles.active}`);
+    if (imageRefs.current[activeIndex]) {
+      imageRefs.current[activeIndex].classList.add(`${styles.swipeToRight}`);
+      imageRefs.current[activeIndex].classList.add(`${styles.active}`);
       setIsMovingRight(true);
     }
   };
 
   const handleSwipeLeft = () => {
-    if (imageRef.current) {
-      imageRef.current.classList.add(`${styles.active}`);
-      imageRef.current.classList.add(`${styles.swipeToLeft}`);
+    if (imageRefs.current[activeIndex]) {
+      imageRefs.current[activeIndex].classList.add(`${styles.active}`);
+      imageRefs.current[activeIndex].classList.add(`${styles.swipeToLeft}`);
       setIsMovingLeft(true);
     }
   };
@@ -104,35 +138,36 @@ export const NativeDnD = () => {
     setActiveIndex(imagesList.length - 1);
   };
 
-  useEffect(() => {}, [cards]);
-
   return (
     <section className={styles.section}>
-      <div className={styles.container}>
+      <div
+        className={styles.container}
+        onMouseMove={isDragging ? handleDrag : undefined}>
         <h2>Mouse events, css-animations</h2>
         <div className={styles["cards-block"]}>
           <div className={styles.stub}>Карточки закончились</div>
-          {cards.map(({ id, src }) => (
+          {cards.map(({ id, src }, index) => (
             <div
               key={id}
               className={`${styles.cardWrapper} ${
                 activeIndex >= 0 && id === activeIndex ? styles.active : ""
               } `}
               onAnimationEnd={handleAnimationEnd}
-              ref={activeIndex >= 0 && id === activeIndex ? imageRef : null}
+              ref={(el) => (imageRefs.current[index] = el)}
               style={{
                 backgroundImage: `url(${src})`,
                 backgroundRepeat: "no-repeat",
                 backgroundSize: "cover",
-                top: `${
-                  activeIndex >= 0 && id === activeIndex ? dragDelta.y + 10 : 0
-                }px`,
-                left: `${
-                  activeIndex >= 0 && id === activeIndex ? dragDelta.x : 0
-                }px`,
+                transform: `${
+                  activeIndex >= 0 && id === activeIndex
+                    ? `translate(${dragDeltaRef.current.x}px, ${dragDeltaRef.current.y}px) rotate(${rotationAngle}deg)`
+                    : `translate(0px, 0px) rotate(0deg)`
+                }`,
+                transition: !isDragging
+                  ? "transform 0.4s ease-in-out, 0.4s "
+                  : "none",
               }}
               onMouseDown={handleDragStart}
-              onMouseMove={isDragging ? handleDrag : undefined}
               onMouseUp={handleDragEnd}
               onMouseLeave={handleDragEnd}
               onTouchStart={handleDragStart}
@@ -148,7 +183,7 @@ export const NativeDnD = () => {
                 : `${styles.active} ${styles.btn}`
             }
             onClick={handleSwipeLeft}
-            disabled={activeIndex < 0 || isMovingRight ? true : false}>
+            disabled={activeIndex < 0 || isMovingLeft}>
             Left
           </button>
           <button
@@ -158,7 +193,7 @@ export const NativeDnD = () => {
                 : `${styles.active} ${styles.btn}`
             }
             onClick={handlecardsBack}
-            disabled={activeIndex === imagesList.length - 1 ? true : false}>
+            disabled={activeIndex === imagesList.length - 1}>
             {" "}
             Вернуть
           </button>
@@ -169,7 +204,7 @@ export const NativeDnD = () => {
                 : `${styles.active} ${styles.btn}`
             }
             onClick={handleSwipeRight}
-            disabled={activeIndex < 0 || isMovingLeft ? true : false}>
+            disabled={activeIndex < 0 || isMovingRight}>
             Right
           </button>
         </div>
