@@ -114,21 +114,16 @@
 }
 
 @keyframes swipeToLeft {
-  0% {
-    transform: none;
-  }
+
 
   100% {
-    transform: rotate(-20deg) translate(-200%, 0);
+    transform: translate(-200%, 0);
   }
 }
 
 @keyframes swipeToRight {
-  0% {
-    transform: none;
-  }
 
   100% {
-    transform: rotate(20deg) translate(200%, 0);
+    transform: translate(200%, 0);
   }
 }

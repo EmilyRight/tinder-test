@@ -1,6 +1,7 @@
 import styles from "./index.module.css";
 import imagesList from "../../constants/constants";
 import { useRef, useState } from "react";
+import useWindowSize from "../TinderCard/useWindowSize";
 
 export const NativeDnD = () => {
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -13,7 +14,7 @@ export const NativeDnD = () => {
   const dragDeltaRef = useRef({ x: 0, y: 0 });
   const [rotationAngle, setRotationAngle] = useState(0);
   const rafId = useRef(0); // для хранения идентификатора requestAnimationFrame
-
+  const { width } = useWindowSize();
   const preventScroll = (e: TouchEvent | MouseEvent) => {
     e.preventDefault(); // Блокируем скроллинг страницы
   };
@@ -89,16 +90,14 @@ export const NativeDnD = () => {
     if (isDragging && imageRefs.current[activeIndex]) {
       setIsDragging(false);
       const deltaX = dragDeltaRef.current.x;
-      const deltaY = dragDeltaRef.current.y;
+      const animationThreshold = width && width < 768 ? 100 : 150;
 
-      if (Math.abs(deltaX) > 150 || Math.abs(deltaY) > 150) {
+      if (Math.abs(deltaX) > animationThreshold) {
         const targetX = deltaX > 0 ? "200%" : "-200%";
-        const targetY = deltaY > 0 ? "200%" : "-200%";
-
         // Применяем трансформацию
         imageRefs.current[activeIndex].style.setProperty(
           "transform",
-          `translate(${targetX}, ${targetY}) rotate(${rotationAngle})`
+          `translate(${targetX}, 0) rotate(${rotationAngle})`
         );
         handleAnimationEnd();
       }
@@ -131,6 +130,8 @@ export const NativeDnD = () => {
     setActiveIndex((prev) => prev - 1);
     setIsMovingLeft(false);
     setIsMovingRight(false);
+    window.removeEventListener("touchmove", preventScroll);
+    window.removeEventListener("mousemove", preventScroll);
   };
 
   const handlecardsBack = () => {
@@ -159,12 +160,12 @@ export const NativeDnD = () => {
                 backgroundRepeat: "no-repeat",
                 backgroundSize: "cover",
                 transform: `${
-                  activeIndex >= 0 && id === activeIndex
+                  activeIndex >= 0 && id === activeIndex && isDragging
                     ? `translate(${dragDeltaRef.current.x}px, ${dragDeltaRef.current.y}px) rotate(${rotationAngle}deg)`
-                    : `translate(0px, 0px) rotate(0deg)`
+                    : `none`
                 }`,
                 transition: !isDragging
-                  ? "transform 0.4s ease-in-out, 0.4s "
+                  ? "transform 0.4s linear, 0.4s "
                   : "none",
               }}
               onMouseDown={handleDragStart}
