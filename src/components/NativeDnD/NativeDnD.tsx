@@ -1,6 +1,6 @@
 import styles from "./index.module.css";
 import imagesList from "../../constants/constants";
-import { useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import useWindowSize from "../TinderCard/useWindowSize";
 
 export const NativeDnD = () => {
@@ -15,8 +15,18 @@ export const NativeDnD = () => {
   const [rotationAngle, setRotationAngle] = useState(0);
   const rafId = useRef(0); // для хранения идентификатора requestAnimationFrame
   const { width } = useWindowSize();
+
   const preventScroll = (e: TouchEvent | MouseEvent) => {
     e.preventDefault(); // Блокируем скроллинг страницы
+  };
+
+  const getDirection = () => {
+    if (dragDeltaRef.current.x > 0) {
+      return "left";
+    } else if (dragDeltaRef.current.x < 0) {
+      return "right";
+    }
+    return "none";
   };
 
   const handleDragStart = (
@@ -60,13 +70,15 @@ export const NativeDnD = () => {
       target instanceof HTMLDivElement &&
       imageRefs.current[activeIndex] === target
     ) {
+      const { x } = getClientCoords(e);
       window.addEventListener("touchmove", preventScroll, { passive: false });
       window.addEventListener("mousemove", preventScroll, { passive: false });
-      const { x } = getClientCoords(e);
       const deltaX = x - dragStartCoordsRef.current.x;
       const deltaY = 0;
 
       dragDeltaRef.current = { x: deltaX, y: deltaY };
+
+      const dir = useCallback(getDirection, []);
     }
 
     if (!rafId.current) {
@@ -99,6 +111,8 @@ export const NativeDnD = () => {
           "transform",
           `translate(${targetX}, 0) rotate(${rotationAngle})`
         );
+        window.removeEventListener("touchmove", preventScroll);
+        window.removeEventListener("mousemove", preventScroll);
         handleAnimationEnd();
       }
     }
@@ -130,8 +144,6 @@ export const NativeDnD = () => {
     setActiveIndex((prev) => prev - 1);
     setIsMovingLeft(false);
     setIsMovingRight(false);
-    window.removeEventListener("touchmove", preventScroll);
-    window.removeEventListener("mousemove", preventScroll);
   };
 
   const handlecardsBack = () => {
