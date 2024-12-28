@@ -98,7 +98,8 @@
   background-color: #fac20b;
 }
 
-.btn.inactive {
+.btn.inactive, .btn:disabled {
+  color: rgba(0, 0, 0, 0.311);
   background-color: #1a1a1a30;
   user-select: none;
   pointer-events: none;
@@ -117,13 +118,15 @@
 
 
   100% {
-    transform: translate(-200%, 0);
+    transform: translate(-200%, 0) rotate(-25deg);
+    opacity: 0;
   }
 }
 
 @keyframes swipeToRight {
 
   100% {
-    transform: translate(200%, 0);
+    transform: translate(200%, 0) rotate(25deg);
+    opacity: 0;
   }
 }

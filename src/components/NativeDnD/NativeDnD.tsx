@@ -1,32 +1,54 @@
 import styles from "./index.module.css";
 import imagesList from "../../constants/constants";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useWindowSize from "../TinderCard/useWindowSize";
+import Button from "./Button/Button";
+import classNames from "classnames";
+import Card from "./Card/Card";
 
 export const NativeDnD = () => {
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [cards, setCards] = useState(imagesList);
   const [activeIndex, setActiveIndex] = useState<number>(cards.length - 1);
   const [isDragging, setIsDragging] = useState(false);
-  const [isMovingLeft, setIsMovingLeft] = useState(false);
-  const [isMovingRight, setIsMovingRight] = useState(false);
+  const [opacity, setOpacity] = useState(1);
+
   const dragStartCoordsRef = useRef({ x: 0, y: 0 });
   const dragDeltaRef = useRef({ x: 0, y: 0 });
   const [rotationAngle, setRotationAngle] = useState(0);
-  const rafId = useRef(0); // для хранения идентификатора requestAnimationFrame
+  const rafId = useRef(0);
   const { width } = useWindowSize();
+  const animationThreshold = width && width < 768 ? 30 : 60;
 
-  const preventScroll = (e: TouchEvent | MouseEvent) => {
-    e.preventDefault(); // Блокируем скроллинг страницы
+  const btnClass = classNames(styles.btn, [styles.type], {
+    [styles.inactive]: activeIndex < 0,
+    [styles.active]: activeIndex >= 0,
+  });
+
+  const backBtnClass = classNames(styles.btn, [styles.type], {
+    [styles.inactive]: activeIndex === imagesList.length - 1,
+    [styles.active]: activeIndex !== imagesList.length - 1,
+  });
+
+  let keyFrames: Keyframe[] | PropertyIndexedKeyframes = [
+    {
+      transform: `translate(${dragDeltaRef.current.x}px, ${dragDeltaRef.current.y}px) rotate(${rotationAngle}deg)`,
+    },
+    {
+      transform: `translate(${dragDeltaRef.current.x}%, ${
+        dragDeltaRef.current.y
+      }%) rotate(${rotationAngle * 2}deg)`,
+    },
+  ];
+
+  let options: KeyframeAnimationOptions = {
+    duration: 500,
+    iterations: 1,
+    fill: "forwards",
   };
 
-  const getDirection = () => {
-    if (dragDeltaRef.current.x > 0) {
-      return "left";
-    } else if (dragDeltaRef.current.x < 0) {
-      return "right";
-    }
-    return "none";
+  const preventScroll = (e: TouchEvent | MouseEvent) => {
+    e.preventDefault();
   };
 
   const handleDragStart = (
@@ -46,7 +68,6 @@ export const NativeDnD = () => {
         };
       } else {
         dragStartCoordsRef.current = { x: e.clientX, y: e.clientY };
-        console.log("handleDragStart drag", dragStartCoordsRef.current);
       }
     }
   };
@@ -58,32 +79,6 @@ export const NativeDnD = () => {
       return { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
     return { x: e.clientX, y: e.clientY };
-  };
-
-  const handleDrag = (
-    e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>
-  ) => {
-    const { target } = e;
-    if (!isDragging || !target) return;
-    if (
-      target &&
-      target instanceof HTMLDivElement &&
-      imageRefs.current[activeIndex] === target
-    ) {
-      const { x } = getClientCoords(e);
-      window.addEventListener("touchmove", preventScroll, { passive: false });
-      window.addEventListener("mousemove", preventScroll, { passive: false });
-      const deltaX = x - dragStartCoordsRef.current.x;
-      const deltaY = 0;
-
-      dragDeltaRef.current = { x: deltaX, y: deltaY };
-
-      const dir = useCallback(getDirection, []);
-    }
-
-    if (!rafId.current) {
-      rafId.current = requestAnimationFrame(updateRotation);
-    }
   };
 
   const updateRotation = () => {
@@ -98,25 +93,45 @@ export const NativeDnD = () => {
     }
   };
 
-  const handleDragEnd = () => {
-    if (isDragging && imageRefs.current[activeIndex]) {
-      setIsDragging(false);
-      const deltaX = dragDeltaRef.current.x;
-      const animationThreshold = width && width < 768 ? 100 : 150;
-
-      if (Math.abs(deltaX) > animationThreshold) {
-        const targetX = deltaX > 0 ? "200%" : "-200%";
-        // Применяем трансформацию
-        imageRefs.current[activeIndex].style.setProperty(
-          "transform",
-          `translate(${targetX}, 0) rotate(${rotationAngle})`
-        );
-        window.removeEventListener("touchmove", preventScroll);
-        window.removeEventListener("mousemove", preventScroll);
-        handleAnimationEnd();
-      }
+  const handleDrag = (
+    e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>
+  ) => {
+    const { target } = e;
+    if (!isDragging || !target) return;
+    if (target && imageRefs.current[activeIndex] === target) {
+      const { x, y } = getClientCoords(e);
+      window.addEventListener("touchmove", preventScroll, { passive: false });
+      window.addEventListener("mousemove", preventScroll, { passive: false });
+      const deltaX = x - dragStartCoordsRef.current.x;
+      const deltaY =
+        y - dragStartCoordsRef.current.y > 0
+          ? y - dragStartCoordsRef.current.y
+          : 0;
+      dragDeltaRef.current = { x: deltaX, y: deltaY };
+      setOpacity(Math.abs(animationThreshold / dragDeltaRef.current.x));
     }
 
+    if (!rafId.current) {
+      rafId.current = requestAnimationFrame(updateRotation);
+    }
+  };
+
+  const handleDragEnd = (
+    e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>
+  ) => {
+    const { target } = e;
+    if (!isDragging || !target) return;
+    if (
+      target instanceof HTMLDivElement &&
+      imageRefs.current[activeIndex] === target &&
+      isDragging
+    ) {
+      setAnimation(target);
+      setIsDragging(false);
+      setOpacity(1);
+      window.removeEventListener("touchmove", preventScroll);
+      window.removeEventListener("mousemove", preventScroll);
+    }
     dragDeltaRef.current = { x: 0, y: 0 };
     dragStartCoordsRef.current = { x: 0, y: 0 };
     setRotationAngle(0);
@@ -126,7 +141,7 @@ export const NativeDnD = () => {
     if (imageRefs.current[activeIndex]) {
       imageRefs.current[activeIndex].classList.add(`${styles.swipeToRight}`);
       imageRefs.current[activeIndex].classList.add(`${styles.active}`);
-      setIsMovingRight(true);
+      setIsDragging(true);
     }
   };
 
@@ -134,16 +149,26 @@ export const NativeDnD = () => {
     if (imageRefs.current[activeIndex]) {
       imageRefs.current[activeIndex].classList.add(`${styles.active}`);
       imageRefs.current[activeIndex].classList.add(`${styles.swipeToLeft}`);
-      setIsMovingLeft(true);
+      setIsDragging(true);
+    }
+  };
+
+  const setAnimation = (el: HTMLDivElement) => {
+    const deltaX = dragDeltaRef.current.x;
+
+    if (Math.abs(deltaX) > animationThreshold) {
+      const animation = el.animate(keyFrames, options);
+      animation.finished.then(() => {
+        handleAnimationEnd();
+      });
     }
   };
 
   const handleAnimationEnd = () => {
-    const newCards = cards.slice(0, -1);
+    const newCards = cards.filter((el) => el.id !== activeIndex);
     setCards(newCards);
     setActiveIndex((prev) => prev - 1);
-    setIsMovingLeft(false);
-    setIsMovingRight(false);
+    setIsDragging(false);
   };
 
   const handlecardsBack = () => {
@@ -160,66 +185,56 @@ export const NativeDnD = () => {
         <div className={styles["cards-block"]}>
           <div className={styles.stub}>Карточки закончились</div>
           {cards.map(({ id, src }, index) => (
-            <div
-              key={id}
-              className={`${styles.cardWrapper} ${
-                activeIndex >= 0 && id === activeIndex ? styles.active : ""
-              } `}
-              onAnimationEnd={handleAnimationEnd}
-              ref={(el) => (imageRefs.current[index] = el)}
-              style={{
-                backgroundImage: `url(${src})`,
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "cover",
-                transform: `${
-                  activeIndex >= 0 && id === activeIndex && isDragging
-                    ? `translate(${dragDeltaRef.current.x}px, ${dragDeltaRef.current.y}px) rotate(${rotationAngle}deg)`
-                    : `none`
-                }`,
-                transition: !isDragging
-                  ? "transform 0.4s linear, 0.4s "
-                  : "none",
-              }}
-              onMouseDown={handleDragStart}
-              onMouseUp={handleDragEnd}
-              onMouseLeave={handleDragEnd}
-              onTouchStart={handleDragStart}
-              onTouchMove={isDragging ? handleDrag : undefined}
-              onTouchEnd={handleDragEnd}></div>
+            <>
+              <div
+                key={id}
+                className={`${styles.cardWrapper} ${
+                  activeIndex >= 0 && id === activeIndex ? styles.active : ""
+                } `}
+                onAnimationEnd={handleAnimationEnd}
+                ref={(el) => (imageRefs.current[index] = el)}
+                style={{
+                  backgroundImage: `url(${src})`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "cover",
+                  transform: `${
+                    activeIndex >= 0 && id === activeIndex && isDragging
+                      ? `translate(${dragDeltaRef.current.x}px, ${dragDeltaRef.current.y}px) rotate(${rotationAngle}deg)`
+                      : `unset`
+                  }`,
+                  opacity: activeIndex >= 0 && id === activeIndex ? opacity : 1,
+                  transition: !isDragging
+                    ? "transform 0.4s linear, 0.4s "
+                    : "none",
+                }}
+                onMouseDown={handleDragStart}
+                onMouseUp={handleDragEnd}
+                onMouseLeave={handleDragEnd}
+                onTouchStart={handleDragStart}
+                onTouchMove={isDragging ? handleDrag : undefined}
+                onTouchEnd={handleDragEnd}></div>
+            </>
           ))}
         </div>
         <div className={styles.buttons}>
-          <button
-            className={
-              activeIndex < 0
-                ? `${styles.inactive} ${styles.btn}`
-                : `${styles.active} ${styles.btn}`
-            }
-            onClick={handleSwipeLeft}
-            disabled={activeIndex < 0 || isMovingLeft}>
-            Left
-          </button>
-          <button
-            className={
-              activeIndex === imagesList.length - 1
-                ? `${styles.inactive} ${styles.btn}`
-                : `${styles.active} ${styles.btn}`
-            }
-            onClick={handlecardsBack}
-            disabled={activeIndex === imagesList.length - 1}>
-            {" "}
-            Вернуть
-          </button>
-          <button
-            className={
-              activeIndex < 0
-                ? `${styles.inactive} ${styles.btn}`
-                : `${styles.active} ${styles.btn}`
-            }
-            onClick={handleSwipeRight}
-            disabled={activeIndex < 0 || isMovingRight}>
-            Right
-          </button>
+          <Button
+            action={handleSwipeLeft}
+            text='Left'
+            classNames={btnClass}
+            disabled={activeIndex < 0 || isDragging}
+          />
+          <Button
+            action={handlecardsBack}
+            text='Back'
+            classNames={backBtnClass}
+            disabled={activeIndex === imagesList.length - 1}
+          />
+          <Button
+            action={handleSwipeRight}
+            text='Right'
+            classNames={btnClass}
+            disabled={activeIndex < 0 || isDragging}
+          />
         </div>
       </div>
     </section>
