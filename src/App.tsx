@@ -1,13 +1,14 @@
 import "./App.css";
-import { NativeDnD } from "./components/NativeDnD/NativeDnD";
-import { ReactTinderCards } from "./components/ReactTinderCards/ReactTinderCards";
+import { DragProvider } from "./context/context";
+import { ReactTinderCards } from "./components/NativeDnD/ReactTinderCards";
 
 function App() {
   return (
-    <>
-      <ReactTinderCards />
-      <NativeDnD />
-    </>
+    <DragProvider>
+      <>
+        <ReactTinderCards/>
+      </>
+    </DragProvider>
   );
 }
 

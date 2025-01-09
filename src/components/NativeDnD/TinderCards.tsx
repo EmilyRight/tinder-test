@@ -1,12 +1,11 @@
 import styles from "./index.module.css";
 import imagesList from "../../constants/constants";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import useWindowSize from "../TinderCard/useWindowSize";
 import Button from "./Button/Button";
 import classNames from "classnames";
-import Card from "./Card/Card";
 
-export const NativeDnD = () => {
+export const TinderCards = () => {
   const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [cards, setCards] = useState(imagesList);
   const [activeIndex, setActiveIndex] = useState<number>(cards.length - 1);
@@ -184,37 +183,40 @@ export const NativeDnD = () => {
         <h2>Mouse events, css-animations</h2>
         <div className={styles["cards-block"]}>
           <div className={styles.stub}>Карточки закончились</div>
-          {cards.map(({ id, src }, index) => (
-            <>
-              <div
-                key={id}
-                className={`${styles.cardWrapper} ${
-                  activeIndex >= 0 && id === activeIndex ? styles.active : ""
-                } `}
-                onAnimationEnd={handleAnimationEnd}
-                ref={(el) => (imageRefs.current[index] = el)}
-                style={{
-                  backgroundImage: `url(${src})`,
-                  backgroundRepeat: "no-repeat",
-                  backgroundSize: "cover",
-                  transform: `${
-                    activeIndex >= 0 && id === activeIndex && isDragging
-                      ? `translate(${dragDeltaRef.current.x}px, ${dragDeltaRef.current.y}px) rotate(${rotationAngle}deg)`
-                      : `unset`
-                  }`,
-                  opacity: activeIndex >= 0 && id === activeIndex ? opacity : 1,
-                  transition: !isDragging
-                    ? "transform 0.4s linear, 0.4s "
-                    : "none",
-                }}
-                onMouseDown={handleDragStart}
-                onMouseUp={handleDragEnd}
-                onMouseLeave={handleDragEnd}
-                onTouchStart={handleDragStart}
-                onTouchMove={isDragging ? handleDrag : undefined}
-                onTouchEnd={handleDragEnd}></div>
-            </>
-          ))}
+          {cards.map(({ id, src }, index) => {
+            return (
+              <>
+                <div
+                  key={id}
+                  className={`${styles.cardWrapper} ${
+                    activeIndex >= 0 && id === activeIndex ? styles.active : ""
+                  } `}
+                  onAnimationEnd={handleAnimationEnd}
+                  ref={(el) => (imageRefs.current[index] = el)}
+                  style={{
+                    backgroundImage: `url(${src})`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "cover",
+                    transform: `${
+                      activeIndex >= 0 && id === activeIndex && isDragging
+                        ? `translate(${dragDeltaRef.current.x}px, ${dragDeltaRef.current.y}px) rotate(${rotationAngle}deg)`
+                        : `unset`
+                    }`,
+                    opacity:
+                      activeIndex >= 0 && id === activeIndex ? opacity : 1,
+                    transition: !isDragging
+                      ? "transform 0.4s linear, 0.4s "
+                      : "none",
+                  }}
+                  onMouseDown={handleDragStart}
+                  onMouseUp={handleDragEnd}
+                  onMouseLeave={handleDragEnd}
+                  onTouchStart={handleDragStart}
+                  onTouchMove={isDragging ? handleDrag : undefined}
+                  onTouchEnd={handleDragEnd}></div>
+              </>
+            );
+          })}
         </div>
         <div className={styles.buttons}>
           <Button
