@@ -1,10 +1,4 @@
-import React, {
-  forwardRef,
-  Ref,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { forwardRef, Ref, useEffect, useRef, useState } from "react";
 import styles from "../index.module.css";
 import useWindowSize from "../../TinderCard/useWindowSize";
 import { useDragContext } from "../../../context/context";
@@ -163,15 +157,18 @@ const Card = forwardRef<HTMLDivElement, TCardProps>(
         onAnimationEnd={handleCardFlyOut}
         ref={ref}
         style={{
+          zIndex: isActive ? 10 : 1,
           backgroundImage: `url(${src})`,
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           transform: `${
             id >= 0 && isActive && isDragging
               ? `translate(${dragDelta.x}px, ${dragDelta.y}px) rotate(${rotationAngle}deg)`
-              : `unset`
+              : `translate(0, 0) rotate(0deg)`
           }`,
-          transition: isDragging ? "none" : "transform 0.4s linear",
+          transition: isDragging
+            ? "none"
+            : "transform 0.4s linear, opacity 0.4s linear",
           opacity: id >= 0 && isActive ? opacity : 1,
         }}
         onMouseDown={handleDragStart}

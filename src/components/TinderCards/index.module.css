@@ -20,7 +20,6 @@
   position: relative;
   width: 320px;
   height: 320px;
-  margin-bottom: 40px;
   display: grid;
   grid-template-columns: auto;
   grid-template-rows: auto;
@@ -30,8 +29,10 @@
 .stub {
   grid-column: 1/1;
   grid-row: 1/1;
-  width: 100%;
   user-select: none;
+  align-self: center;
+  justify-self: center;
+  text-align: center;
 }
 
 .cardWrapper {
@@ -52,22 +53,18 @@
   cursor: grab;
   will-change: transform;
   user-select: none;
-  transition: all 0.4s ease;
 }
 
 .cardWrapper:not(.active) {
   width: calc(320px * 0.9);
   height: calc(320px * 0.9);
-  transform: scale(0.9);
-  transition: all 0.4s ease;
 }
 
 .cardWrapper.active {
   width: 320px;
+  top: 10px;
   transform-origin: center;
-  transform: scale(1);
   box-shadow: 0 0 5px 2px rgba(68, 69, 68, 0.222);
-  transition: all 0.4s ease;
 }
 
 .cardWrapper:last-of-type.swipeToLeft {
@@ -86,6 +83,7 @@
 .buttons {
   display: flex;
   gap: 20px;
+  margin-top: 40px;
 }
 
 .btn {
@@ -97,21 +95,28 @@
   font-family: inherit;
   cursor: pointer;
   transition: border-color 0.25s;
+  color: black;
+  transition: .4s;
 }
 
-.btn.active {
+.btn.active,
+.btn:disabled {
   background-color: #fac20b;
 }
 
-.btn.inactive,
-.btn:disabled {
+.btn.inactive {
   color: rgba(0, 0, 0, 0.311);
-  background-color: #1a1a1a30;
+  background-color: #8b94848a;
   user-select: none;
   pointer-events: none;
 }
 
-.left {
+.btn:disabled.red {
+  background-color: #fa0b0b80;
+}
+
+.btn:disabled.green {
+  background-color: #185c0767;
 }
 
 @media screen and (max-width: 1365px) {

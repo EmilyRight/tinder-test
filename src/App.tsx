@@ -1,12 +1,12 @@
 import "./App.css";
 import { DragProvider } from "./context/context";
-import { ReactTinderCards } from "./components/NativeDnD/ReactTinderCards";
+import TinderCards from "./components/TinderCards";
 
 function App() {
   return (
     <DragProvider>
       <>
-        <ReactTinderCards/>
+        <TinderCards/>
       </>
     </DragProvider>
   );
